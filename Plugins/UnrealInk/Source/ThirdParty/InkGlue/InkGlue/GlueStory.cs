@@ -203,6 +203,22 @@ namespace InkGlue
             return new GlueVariablesState(_story.variablesState);
         }
 
+        public string GetListDefinitions()
+        {
+            ListDefinitionsOrigin listDefinitions = _story.listDefinitions;
+            List<string> listsAsStrings = new List<string>();
+            foreach (ListDefinition listDefinition in listDefinitions.lists)
+            {
+                List<string> entriesAsStrings = new List<string>();
+                foreach (var itemAndValue in listDefinition.items)
+                {
+                    entriesAsStrings.Add(string.Format("{0};{1};{2}", itemAndValue.Key.originName, itemAndValue.Key.itemName, itemAndValue.Value));
+                }
+                listsAsStrings.Add(string.Format("{0}:{1}", listDefinition.name, string.Join(",", entriesAsStrings)));
+            }
+            return string.Join("#", listsAsStrings);
+        }
+
         void InternalObserve(string variableName, object newValue)
 		{
 			ObserverCallback(_instanceId, variableName, new InkVarInterop(newValue));

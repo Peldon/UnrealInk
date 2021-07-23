@@ -510,3 +510,27 @@ void UStory::BackgroundSaveComplete()
 {
 	MonoInvoke<void>("BackgroundSaveComplete", NULL);
 }
+
+////////////////////////////////////////////////////////
+TArray<FInkListVar> UStory::GetListDefinitions()
+{
+	TArray<FInkListVar> result;
+
+	// Get result as a mono object
+	MonoObject* pObject = MonoInvoke<MonoObject*>("GetListDefinitions", NULL);
+	MonoClass* pClass = mono_object_get_class(pObject);
+	if (pClass == mono_get_string_class()) {
+		FString listOfListsAsString = FString(mono_string_to_utf8((MonoString*) pObject));
+		TArray<FString> listsAsStrings;
+		listOfListsAsString.ParseIntoArray(listsAsStrings, TEXT("#"), true);
+
+		for (const FString& listAsString : listsAsStrings) {
+			FString name, entriesAsString;
+			listAsString.Split(TEXT(":"), &name, &entriesAsString);
+			FInkListVar inkListVar;
+			inkListVar.Init(entriesAsString);
+			result.Add(inkListVar);
+		}
+	}
+	return result;
+}

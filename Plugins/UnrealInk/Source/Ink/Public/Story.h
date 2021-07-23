@@ -126,6 +126,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void BackgroundSaveComplete();
 
+	UFUNCTION(BlueprintPure, Category = Ink)
+	TArray<FInkListVar> GetListDefinitions();
+
 private:
 	typedef TPair<int, FString> FDelegateMapKey;
 	static TMap<FDelegateMapKey, TArray<FVariableObserver>> VarObserverMap;
