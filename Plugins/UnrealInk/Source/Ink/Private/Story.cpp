@@ -228,10 +228,11 @@ void UStory::ResetState()
 }
 
 ////////////////////////////////////////////////////////
-void UStory::ResetErrors()
-{
-	MonoInvoke<void>("ResetErrors", NULL);
-}
+// no longer public in Ink 1.0.0
+//void UStory::ResetErrors()
+//{
+//	MonoInvoke<void>("ResetErrors", NULL);
+//}
 
 ////////////////////////////////////////////////////////
 void UStory::ResetCallstack()

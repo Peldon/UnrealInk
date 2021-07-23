@@ -12,7 +12,7 @@ namespace InkGlue
 		public string ResolveInkFilename(string includeName)
 		{
 			var workingDir = Directory.GetCurrentDirectory();
-			var fullRootInkPath = Path.Combine(workingDir, includeName);
+			var fullRootInkPath = System.IO.Path.Combine(workingDir, includeName);
 			return fullRootInkPath;
 		}
 

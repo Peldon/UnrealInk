@@ -158,10 +158,11 @@ namespace InkGlue
 			_story.ResetState();
 		}
 
-		public void ResetErrors()
-		{
-			_story.ResetErrors();
-		}
+        // this is no longer public in Ink 1.0.0
+		//public void ResetErrors()
+		//{
+		//	_story.ResetErrors();
+		//}
 
 		public void ResetCallstack()
 		{

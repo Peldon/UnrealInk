@@ -72,8 +72,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void ResetState();
 
-	UFUNCTION(BlueprintCallable, Category = Ink)
-	void ResetErrors();
+// no longer public in Ink 1.0.0
+//	UFUNCTION(BlueprintCallable, Category = Ink)
+//	void ResetErrors();
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void ResetCallstack();
