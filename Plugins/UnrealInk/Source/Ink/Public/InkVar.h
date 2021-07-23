@@ -51,6 +51,51 @@ struct FInkVar
 	FString stringVar;
 };
 
+USTRUCT(BlueprintType)
+struct FInkListEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ink")
+	FString origin;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ink")
+	FString item;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ink")
+	int value;
+};
+
+USTRUCT(BlueprintType)
+struct FInkListVar
+{
+	GENERATED_BODY()
+
+	FInkListVar() {}
+
+	bool Init(const FString& listAsString) {
+		TArray<FString> entriesAsString;
+		listAsString.ParseIntoArray(entriesAsString, TEXT(","), true);
+		for (const FString& entry : entriesAsString) {
+			TArray<FString> listVarParts;
+			entry.ParseIntoArray(listVarParts, TEXT(";"), true);
+			if (listVarParts.Num() != 3) {
+				UE_LOG(LogTemp, Error, TEXT("ListEntry has not 3 parts!"));
+				return false;
+			}
+			FInkListEntry listEntry;
+			listEntry.origin = listVarParts[0];
+			listEntry.item = listVarParts[1];
+			listEntry.value = FCString::Atoi(*listVarParts[2]);
+			entries.Add(listEntry);
+		}
+		return true;
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ink")
+	TArray<FInkListEntry> entries;
+};
+
 UCLASS()
 class INK_API UInkVarLibrary : public UBlueprintFunctionLibrary
 {

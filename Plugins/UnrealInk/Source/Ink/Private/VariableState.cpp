@@ -27,25 +27,97 @@ TArray<FString> UVariablesState::GetVariables()
 	return variableNames;
 }
 
-FInkVar UVariablesState::GetVariable(const FString& variableName)
+FInkVar UVariablesState::GetVariable(const FString& variableName) 
+{
+	FInkVar result;
+	ETryReturn returnBranch = ETryReturn::Fail;
+	TryGetVariable(variableName, result, returnBranch);
+	if (returnBranch == ETryReturn::Then)
+		return result;
+
+	UE_LOG(LogTemp, Error, TEXT("Variable not found or not of type int, float or string!"));
+	return FInkVar();
+}
+
+FInkListVar UVariablesState::GetListVariable(const FString& variableName) 
+{
+	FInkListVar result;
+	ETryReturn returnBranch = ETryReturn::Fail;
+	TryGetListVariable(variableName, result, returnBranch);
+	if (returnBranch == ETryReturn::Then)
+		return result;
+	
+	UE_LOG(LogTemp, Error, TEXT("Variable not found or not a list variable!"));
+	return FInkListVar();
+}
+
+TArray<FString> UVariablesState::GetListVariableEntries(const FString& variableName) {
+
+	TArray<FString> result;
+	for (const FInkListEntry& entry : GetListVariable(variableName).entries) {
+		result.Add(entry.item);
+	}
+	return result;
+}
+
+TArray<FString> UVariablesState::GetListVariableOrigins(const FString& variableName) {
+	TArray<FString> result;
+	for (const FInkListEntry& entry : GetListVariable(variableName).entries) {
+		result.AddUnique(entry.origin);
+	}
+	return result;
+}
+
+void UVariablesState::TryGetVariable(const FString& variableName, FInkVar& inkVar, ETryReturn& returnBranch)
 {
 	// Single parameter: variable name
 	void* params[1];
 	params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*variableName));
 
 	// Get result as a mono object
-	MonoObject* result = MonoInvoke<MonoObject*>("GetVariable", params);
-	MonoClass* pClass = mono_object_get_class(result);
+	MonoObject* pObject = MonoInvoke<MonoObject*>("GetVariable", params);
+	MonoClass* pClass = mono_object_get_class(pObject);
 
-	if (pClass == mono_get_single_class())
-		return FInkVar(*(float*)mono_object_unbox(result));
-	else if (pClass == mono_get_int32_class())
-		return FInkVar(*(int*)mono_object_unbox(result));
-	else if (pClass == mono_get_string_class())
-		return FInkVar(FString(mono_string_to_utf8((MonoString*)result)));
+	returnBranch = ETryReturn::Then;
+	if (pClass == mono_get_single_class()) {
+		inkVar.type = EInkVarType::Float;
+		inkVar.floatVar = *(float*) mono_object_unbox(pObject);
+	}
+	else if (pClass == mono_get_int32_class()) {
+		inkVar.type = EInkVarType::Int;
+		inkVar.intVar = *(int*) mono_object_unbox(pObject);
+	}
+	else if (pClass == mono_get_string_class()) {
+		inkVar.type = EInkVarType::String;
+		inkVar.stringVar = FString(mono_string_to_utf8((MonoString*) pObject));
+	}
+	else {
+		returnBranch = ETryReturn::Fail;
+		inkVar.type = EInkVarType::None;
+		UE_LOG(LogTemp, Error, TEXT("Variable not found or not of type int, float or string!"));
+	}
+}
 
-	checkf(false, TEXT("Expected either float, int, or string returned from VariablesState::GetVariable"));
-	return FInkVar(0);
+void UVariablesState::TryGetListVariable(const FString& variableName, FInkListVar& inkListVar, ETryReturn& returnBranch)
+{
+	// Single parameter: variable name
+	void* params[1];
+	params[0] = mono_string_new(mono_domain_get(), TCHAR_TO_UTF8(*variableName));
+
+	// Get result as a mono object
+	MonoObject* pObject = MonoInvoke<MonoObject*>("GetListVariable", params);
+	MonoClass* pClass = mono_object_get_class(pObject);
+	if (pClass == mono_get_string_class()) {
+
+		FString listAsString = FString(mono_string_to_utf8((MonoString*) pObject));
+		//UE_LOG(LogTemp, Error, TEXT("List Variable found: %s!"), *listAsString);
+		inkListVar.Init(listAsString);
+		returnBranch = ETryReturn::Then;
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("Variable not found or not a list!"));
+		returnBranch = ETryReturn::Fail;
+	}
 }
 
 void UVariablesState::SetVariableFloat(const FString& variableName, float value)

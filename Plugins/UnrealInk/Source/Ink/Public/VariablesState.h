@@ -5,6 +5,13 @@
 #include "VariablesState.generated.h"
 
 struct FInkVar;
+struct FInkListVar;
+
+UENUM(BlueprintType)
+enum class ETryReturn : uint8 {
+	Then,
+	Fail
+};
 
 UCLASS(BlueprintType)
 class INK_API UVariablesState : public UMonoBaseClass
@@ -18,6 +25,21 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Ink)
 	FInkVar GetVariable(const FString& variableName);
+
+	UFUNCTION(BlueprintPure, Category = Ink)
+	FInkListVar GetListVariable(const FString& variableName);
+
+	UFUNCTION(BlueprintPure, Category = Ink)
+	TArray<FString> GetListVariableEntries(const FString& variableName);
+
+	UFUNCTION(BlueprintPure, Category = Ink)
+	TArray<FString> GetListVariableOrigins(const FString& variableName);
+
+	UFUNCTION(BlueprintCallable, Category = Ink, Meta = (ExpandEnumAsExecs = "returnBranch"))
+	void TryGetVariable(const FString& variableName, FInkVar& inkVar, ETryReturn& returnBranch);
+
+	UFUNCTION(BlueprintCallable, Category = Ink, Meta = (ExpandEnumAsExecs = "returnBranch"))
+	void TryGetListVariable(const FString& variableName, FInkListVar& inkListVar, ETryReturn& returnBranch);
 
 	UFUNCTION(BlueprintCallable, Category = Ink)
 	void SetVariableFloat(const FString& variableName, float value);
