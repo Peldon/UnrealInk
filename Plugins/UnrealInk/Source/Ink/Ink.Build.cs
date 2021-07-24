@@ -67,8 +67,8 @@ public class Ink : ModuleRules
         // Copy dlls and assemblies to output directory
         // --------------------------------------------
 
-        string PlatformString = (Target.Platform == UnrealTargetPlatform.Win64) ? "Win64" : "Win32";
-        if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.Win32)
+        string PlatformString = "Win64";
+        if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             RuntimeDependencies.Add("$(TargetOutputDir)/mono-2.0-sgen.dll", Path.Combine(pluginDirectory, "ThirdParty/Mono/lib", PlatformString, "mono-2.0-sgen.dll"));
         }
@@ -92,8 +92,7 @@ public class Ink : ModuleRules
     {
         string MonoLibPath = MonoUEPluginDirectory + "/ThirdParty/Mono/lib/" + Target.Platform;
 
-        if (Target.Platform == UnrealTargetPlatform.Win64
-            || Target.Platform == UnrealTargetPlatform.Win32)
+        if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             string LibraryName = "mono-2.0-sgen";
             PublicAdditionalLibraries.Add(Path.Combine(MonoLibPath, LibraryName + ".lib"));
